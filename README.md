@@ -39,3 +39,4 @@ CMD service sshd start; \
     su oracle -c "lsnrctl start LISTENER"; \
     bash
 ```
+As a result, the size of the Docker image will be 4.651 GB
