@@ -2,8 +2,6 @@
 
 Oracle Database 11.2.0.1 with SSH key access on Oracle Linux 6 Dockerfile
 
-This **Dockerfile** is a [trusted build](https://registry.hub.docker.com/u/doomkin/oraclelinux/) of [Docker Registry](https://registry.hub.docker.com/).
-
 ### Base Docker Image
 
 * [doomkin/oraclelinux](https://github.com/doomkin/oraclelinux)
