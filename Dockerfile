@@ -45,12 +45,15 @@ echo "Runnig NetCA in silent mode..."; \
 echo "Creating script to run DBCA in silent mode..."; \
     echo "/opt/oracle/home/bin/dbca -silent -responsefile /opt/response/dbca.rsp" > /opt/response/dbca-silent.sh; \
     chmod 775 /opt/response/dbca-silent.sh; \
-echo "Configuring locale..."; \
+echo "Configuring..."; \
     echo "export LANGUAGE=en_US.UTF-8" >> /home/oracle/.bashrc; \
     echo "export LANG=en_US.UTF-8" >> /home/oracle/.bashrc; \
     echo "export LC_ALL=en_US.UTF-8" >> /home/oracle/.bashrc; \
     echo "export ORACLE_HOME=/opt/oracle/home" >> /home/oracle/.bashrc; \
     echo "export PATH=/opt/oracle/home/bin:$PATH" >> /home/oracle/.bashrc; \
+    mkdir -p /home/oracle/.ssh; \
+    cp -u /root/.ssh/authorized_keys /home/oracle/.ssh; \
+    chowm -R oracle:dba /home/oracle/.ssh; \
 echo "Cleaning..."; \
     rm -fr /opt/install; \
     rm -rf /var/cache/*
