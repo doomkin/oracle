@@ -25,13 +25,13 @@ ssh-add ssh/id_rsa
 ssh root@localhost -p `sudo docker port orac 22 | cut -d":" -f2`
 ```
 
-### Compress Docker image
-Keep last layer:
+### Keep last layer
 ```
 sudo docker export orac > oracle.tar
 cat oracle.tar | sudo docker import - doomkin/oracle:raw
 ```
-To restore metadata rebuild image with Dockerfile:
+
+### To restore metadata rebuild image with Dockerfile
 ```
 FROM doomkin/oracle:raw
 EXPOSE 22 1521
