@@ -2,6 +2,8 @@
 
 Oracle Database 11.2.0.1 with SSH key access on Oracle Linux 6 Dockerfile
 
+This **Dockerfile** is a [trusted build](https://registry.hub.docker.com/u/doomkin/oracle/) of [Docker Registry](https://registry.hub.docker.com/).
+
 ### Base Docker Image
 
 * [doomkin/oraclelinux](https://github.com/doomkin/oraclelinux)
@@ -39,4 +41,4 @@ CMD service sshd start; \
     su oracle -c "lsnrctl start LISTENER"; \
     bash
 ```
-As a result, the size of the Docker image will be 4.651 GB
+As a result, the size of the Docker image will be 4.7 GB
