@@ -26,9 +26,9 @@
 ##        Creates database silently. No user interface is displayed.        ##
 ##                                                                          ##
 ##     3. dbca -silent -createDatabase -cloneTemplate                       ##
-##			 -responseFile <response file>                      ##
+##			 -responseFile <response file>                                  ##
 ##        Creates database silently with clone template. The template in    ##
-##	  responsefile is a clone template. 			            ##
+##	  responsefile is a clone template.                                     ##
 ##                                                                          ##
 ##     4. dbca -silent -deleteDatabase -responseFile <response file>        ##
 ##        Deletes database silently.                                        ##
@@ -208,7 +208,7 @@ TEMPLATENAME = "General_Purpose.dbc"
 # Default value : None
 # Mandatory     : Yes
 #-----------------------------------------------------------------------------
-#SYSPASSWORD = "password"
+SYSPASSWORD = "password"
 
 #-----------------------------------------------------------------------------
 # Name          : SYSTEMPASSWORD
@@ -218,7 +218,7 @@ TEMPLATENAME = "General_Purpose.dbc"
 # Default value : None
 # Mandatory     : Yes
 #-----------------------------------------------------------------------------
-#SYSTEMPASSWORD = "password"
+SYSTEMPASSWORD = "password"
 
 #-----------------------------------------------------------------------------
 # Name          : EMCONFIGURATION
@@ -238,7 +238,7 @@ TEMPLATENAME = "General_Purpose.dbc"
 # Default value : NONE
 # Mandatory     : No
 #-----------------------------------------------------------------------------
-#DISABLESECURITYCONFIGURATION = "NONE"
+DISABLESECURITYCONFIGURATION = "ALL"
 
 
 #-----------------------------------------------------------------------------
@@ -357,7 +357,7 @@ TEMPLATENAME = "General_Purpose.dbc"
 # Default value : $ORACLE_BASE/oradata
 # Mandatory     : No
 #-----------------------------------------------------------------------------
-#DATAFILEDESTINATION =
+DATAFILEDESTINATION = "/u02/oradata"
 
 #-----------------------------------------------------------------------------
 # Name          : RECOVERYAREADESTINATION
@@ -415,7 +415,7 @@ TEMPLATENAME = "General_Purpose.dbc"
 # Default value : "US7ASCII"
 # Mandatory     : NO
 #-----------------------------------------------------------------------------
-#CHARACTERSET = "US7ASCII"
+CHARACTERSET = "CL8MSWIN1251"
 
 #-----------------------------------------------------------------------------
 # Name          : NATIONALCHARACTERSET
@@ -520,7 +520,7 @@ TEMPLATENAME = "General_Purpose.dbc"
 # Default value : None
 # Mandatory     : NO
 #-----------------------------------------------------------------------------
-#MEMORYPERCENTAGE = "40"
+MEMORYPERCENTAGE = "10"
 
 #-----------------------------------------------------------------------------
 # Name          : DATABASETYPE
