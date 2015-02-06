@@ -21,7 +21,7 @@ sudo docker run --name orac -it -P \
     doomkin/oracle
 ```
 
-### Login by SSH
+### Login into Container by SSH
 ```
 ssh-agent -s
 ssh-add ssh/id_rsa
@@ -31,6 +31,10 @@ ssh root@localhost -p `sudo docker port orac 22 | cut -d":" -f2`
 ### Create Database
 ```
 dbca-create <SID>
+```
+
+### Login into Database
+```
 sqlplus "sys/oracle123@<SID> as sysdba"
 ```
 
