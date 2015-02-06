@@ -24,7 +24,7 @@ echo "Create a directory structure"; \
     mkdir -p /u02/oradata; \
     mkdir -p /u02/dump; \
     chown -R oracle:oinstall /u02; \
-	touch /etc/fstab; \
+    touch /etc/fstab; \
 echo "Install package and OS requirements"; \
     yum install -y oracle-rdbms-server-11gR2-preinstall wget mc; \
 echo "Build 7za"; \
@@ -63,12 +63,12 @@ echo "Cleanup"; \
     yum clean all
 
 RUN \
-echo "Configure Environment"; \
-	echo "export LC_ALL=en_US.UTF-8" >> /etc/profile.d/oracle.sh; \
+    echo "Configure Environment"; \
+    echo "export LC_ALL=en_US.UTF-8" >> /etc/profile.d/oracle.sh; \
     echo "export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251" >> /etc/profile.d/oracle.sh; \
     echo "export PATH=/u01/app/oracle/home/bin:$PATH" >> /etc/profile.d/oracle.sh; \
     echo "export ORACLE_HOME=/u01/app/oracle/home" >> /etc/profile.d/oracle.sh; \
-	chmod 755 /etc/profile.d/oracle.sh
+    chmod 755 /etc/profile.d/oracle.sh
 
 VOLUME /u02/oradata /u02/dump
 
