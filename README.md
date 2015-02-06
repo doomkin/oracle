@@ -13,7 +13,7 @@ This [**Dockerfile**](https://github.com/doomkin/oracle/blob/master/Dockerfile) 
 sudo docker pull doomkin/oracle
 ```
 
-### Run with external database storage
+### Run with external Database storage
 ```
 sudo docker run --name orac -it -P \
     -v /media/d2/oradata:/u02/oradata \
@@ -26,6 +26,17 @@ sudo docker run --name orac -it -P \
 ssh-agent -s
 ssh-add ssh/id_rsa
 ssh root@localhost -p `sudo docker port orac 22 | cut -d":" -f2`
+```
+
+### Create Database
+```
+dbca-create <SID>
+sqlplus "sys/oracle123@<SID> as sysdba"
+```
+
+### Delete Database
+```
+dbca-delete <SID>
 ```
 
 ### Build the image with only last layer to compress
