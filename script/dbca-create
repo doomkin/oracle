@@ -1,0 +1,2 @@
+echo "SID_LIST_LISTENER = (SID_LIST = (SID_DESC = (SID_NAME = $1) (ORACLE_HOME = /u01/app/oracle/home)))" >> /u01/app/oracle/home/network/admin/listener.ora
+dbca -silent -createDatabase -gdbname $1 -sid $1 -responseFile /u01/app/oracle/response/dbca.rsp
