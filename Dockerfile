@@ -21,13 +21,12 @@ echo "Oracle Database 11gR2 installation on Oracle Linux 6.6"; \
 echo "Create a directory structure"; \
     mkdir -p /u01/app/oracle/software; \
     chown -R oracle:oinstall /u01; \
-    chmod -R 775 /u01; \
     mkdir -p /u02/oradata; \
     mkdir -p /u02/dump; \
     chown -R oracle:oinstall /u02; \
-    chmod -R 775 /u02; \
-echo "Package and OS requirements"; \
-    yum install -y oracle-rdbms-server-11gR2-preinstall wget; \
+	touch /etc/fstab; \
+echo "Install package and OS requirements"; \
+    yum install -y oracle-rdbms-server-11gR2-preinstall wget mc; \
 echo "Build 7za"; \
     cd /tmp; \
     wget http://sourceforge.net/projects/p7zip/files/p7zip/9.20.1/p7zip_9.20.1_src_all.tar.bz2; \
@@ -39,7 +38,6 @@ echo "Unzip software"; \
     cd /u01/app/oracle/software; \
     7za x *1of*.zip; \
     7za x *2of*.zip; \
-    rm -fr /u01/app/oracle/software/*.zip; \
 echo "Run Installer in silent mode"; \
     su oracle -c "umask 022; \
         unset ORACLE_SID; unset ORACLE_HOME; unset TNS_ADMIN; \
@@ -50,10 +48,7 @@ echo "Run Installer in silent mode"; \
     /u01/app/oracle/home/root.sh; \
 echo "Run NetCA in silent mode"; \
     su oracle -c "umask 022; /u01/app/oracle/home/bin/netca /silent /responsefile /u01/app/oracle/response/netca.rsp"; \
-    sed -i -E "s/HOST = [^)]+/HOST = localhost/g" /u01/app/oracle/home/network/admin/listener.ora; \
-echo "Install openssh-server"; \
-    yum install -y openssh-server mc; \
-    yum reinstall -y glibc-common; \
+echo "Configure openssh-server"; \
     sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config; \
     sed -i 's/#PermitRootLogin without-password/PermitRootLogin without-password/' /etc/ssh/sshd_config; \
     sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd; \
@@ -61,23 +56,23 @@ echo "Install openssh-server"; \
     mkdir -p /home/oracle/.ssh; \
     cp -u /root/.ssh/authorized_keys /home/oracle/.ssh; \
     chown -R oracle:dba /home/oracle/.ssh; \
-echo "Configure Environment"; \
-    echo "export LC_ALL=en_US.UTF-8" >> /root/.bashrc; \
-    echo "export LC_ALL=en_US.UTF-8" >> /home/oracle/.bashrc; \
-    echo "export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251" >> /home/oracle/.bashrc; \
-    echo "export ORACLE_HOME=/u01/app/oracle/home" >> /home/oracle/.bashrc; \
-    echo "export PATH=/u01/app/oracle/home/bin:$PATH" >> /home/oracle/.bashrc; \
 echo "Cleanup"; \
     rm -fr /u01/app/oracle/software; \
     rm -fr /tmp/*; \
+    yum reinstall -y glibc-common; \
     yum clean all
 
-VOLUME ["/u02/oradata", "/u02/dump"]
+RUN \
+echo "Configure Environment"; \
+	echo "export LC_ALL=en_US.UTF-8" >> /etc/profile.d/oracle.sh; \
+    echo "export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251" >> /etc/profile.d/oracle.sh; \
+    echo "export PATH=/u01/app/oracle/home/bin:$PATH" >> /etc/profile.d/oracle.sh; \
+    echo "export ORACLE_HOME=/u01/app/oracle/home" >> /etc/profile.d/oracle.sh; \
+	chmod 755 /etc/profile.d/oracle.sh
+
+VOLUME /u02/oradata /u02/dump
 
 EXPOSE 22 1521
 
 CMD service sshd start; \
-    export ORACLE_HOME=/u01/app/oracle/home; \
-    export PATH=/u01/app/oracle/home/bin:$PATH; \
-    su oracle -c "lsnrctl start LISTENER"; \
     bash
