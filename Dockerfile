@@ -53,7 +53,7 @@ echo "Configuring..."; \
     echo "export PATH=/opt/oracle/home/bin:$PATH" >> /home/oracle/.bashrc; \
     mkdir -p /home/oracle/.ssh; \
     cp -u /root/.ssh/authorized_keys /home/oracle/.ssh; \
-    chowm -R oracle:dba /home/oracle/.ssh; \
+    chown -R oracle:dba /home/oracle/.ssh; \
 echo "Cleaning..."; \
     rm -fr /opt/install; \
     rm -rf /var/cache/*
