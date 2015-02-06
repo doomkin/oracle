@@ -208,7 +208,7 @@ TEMPLATENAME = "General_Purpose.dbc"
 # Default value : None
 # Mandatory     : Yes
 #-----------------------------------------------------------------------------
-SYSPASSWORD = "password"
+SYSPASSWORD = "oracle123"
 
 #-----------------------------------------------------------------------------
 # Name          : SYSTEMPASSWORD
@@ -218,7 +218,7 @@ SYSPASSWORD = "password"
 # Default value : None
 # Mandatory     : Yes
 #-----------------------------------------------------------------------------
-SYSTEMPASSWORD = "password"
+SYSTEMPASSWORD = "oracle123"
 
 #-----------------------------------------------------------------------------
 # Name          : EMCONFIGURATION
