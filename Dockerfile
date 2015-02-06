@@ -2,68 +2,82 @@
 # doomkin/oracle Dockerfile
 #
 # Based on:
-# https://github.com/doomkin/oraclelinux
+# https://registry.hub.docker.com/_/oraclelinux/
 #
 
-# Pull base image
-FROM doomkin/oraclelinux
+FROM oraclelinux:6.6
 MAINTAINER Pavel Nikitin <p.doomkin@ya.ru>
 
-# Copy distributive
-COPY install /opt/install
-COPY response /opt/response
+ADD ssh/id_rsa.pub /root/.ssh/authorized_keys
 
-# Install Oracle Database Server
+COPY software /u01/app/oracle/software
+COPY response /u01/app/oracle/response
+
 RUN \
-echo "Extracting distributive..."; \
-    cd /opt/install; \
-    unzip -x *1of2.zip; \
-    unzip -x *2of2.zip; \
-    rm -fr /opt/install/*.zip; \
-echo "Creating Oracle user and groups..."; \
+echo "Oracle Database 11gR2 installation on Oracle Linux 6.6"; \
     groupadd oinstall; \
     groupadd dba; \
     useradd -g oinstall -G dba oracle; \
-echo "Prepare folders..."; \
-    mkdir -p /opt/oracle; \
-    mkdir -p /opt/oraInventory; \
-    chown -R oracle:oinstall /opt/oracle; \
-	chown -R oracle:oinstall /opt/oraInventory; \
-	chown -R oracle:oinstall /opt/response; \
-echo "Installing Oracle Database Server..."; \
-     su oracle -c "umask 022; \
-     unset ORACLE_SID; unset ORACLE_HOME; unset TNS_ADMIN; \
-     /opt/install/database/runInstaller -waitforcompletion -silent -noconfig -ignoreSysPrereqs -ignorePrereq \
-         -responseFile /opt/response/db_install.rsp \
-         "FROM_LOCATION=/opt/install/database/stage/products.xml" \
-         "ORACLE_HOSTNAME=localhost""; \
-    /opt/oraInventory/orainstRoot.sh; \
-    /opt/oracle/home/root.sh; \
-echo "Runnig NetCA in silent mode..."; \
-    su oracle -c "umask 022; /opt/oracle/home/bin/netca /silent /responsefile /opt/response/netca.rsp"; \
-    sed -i -E "s/HOST = [^)]+/HOST = localhost/g" /opt/oracle/home/network/admin/listener.ora; \
-echo "Creating script to run DBCA in silent mode..."; \
-    echo "/opt/oracle/home/bin/dbca -silent -responsefile /opt/response/dbca.rsp" > /opt/response/dbca-silent.sh; \
-    chmod 775 /opt/response/dbca-silent.sh; \
-echo "Configuring..."; \
-    echo "export LANGUAGE=en_US.UTF-8" >> /home/oracle/.bashrc; \
-    echo "export LANG=en_US.UTF-8" >> /home/oracle/.bashrc; \
-    echo "export LC_ALL=en_US.UTF-8" >> /home/oracle/.bashrc; \
-    echo "export ORACLE_HOME=/opt/oracle/home" >> /home/oracle/.bashrc; \
-    echo "export PATH=/opt/oracle/home/bin:$PATH" >> /home/oracle/.bashrc; \
+echo "Create a directory structure"; \
+    mkdir -p /u01/app/oracle/software; \
+    chown -R oracle:oinstall /u01; \
+    chmod -R 775 /u01; \
+    mkdir -p /u02/oradata; \
+    mkdir -p /u02/dump; \
+    chown -R oracle:oinstall /u02; \
+    chmod -R 775 /u02; \
+echo "Package and OS requirements"; \
+    yum install -y oracle-rdbms-server-11gR2-preinstall wget; \
+echo "Build 7za"; \
+    cd /tmp; \
+    wget http://sourceforge.net/projects/p7zip/files/p7zip/9.20.1/p7zip_9.20.1_src_all.tar.bz2; \
+    tar jxf p7zip_9.20.1_src_all.tar.bz2; \
+    cd /tmp/p7zip_9.20.1; \
+    make; \
+    /tmp/p7zip_9.20.1/install.sh; \
+echo "Unzip software"; \
+    cd /u01/app/oracle/software; \
+    7za x *1of*.zip; \
+    7za x *2of*.zip; \
+    rm -fr /u01/app/oracle/software/*.zip; \
+echo "Run Installer in silent mode"; \
+    su oracle -c "umask 022; \
+        unset ORACLE_SID; unset ORACLE_HOME; unset TNS_ADMIN; \
+        /u01/app/oracle/software/database/runInstaller -waitforcompletion -silent -noconfig -ignoreSysPrereqs -ignorePrereq \
+            -responseFile /u01/app/oracle/response/db_install.rsp \
+            "FROM_LOCATION=/u01/app/oracle/software/database/stage/products.xml""; \
+    /u01/app/oraInventory/orainstRoot.sh; \
+    /u01/app/oracle/home/root.sh; \
+echo "Run NetCA in silent mode"; \
+    su oracle -c "umask 022; /u01/app/oracle/home/bin/netca /silent /responsefile /u01/app/oracle/response/netca.rsp"; \
+    sed -i -E "s/HOST = [^)]+/HOST = localhost/g" /u01/app/oracle/home/network/admin/listener.ora; \
+echo "Install openssh-server"; \
+    yum install -y openssh-server mc; \
+    yum reinstall -y glibc-common; \
+    sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config; \
+    sed -i 's/#PermitRootLogin without-password/PermitRootLogin without-password/' /etc/ssh/sshd_config; \
+    sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd; \
+    chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys; \
     mkdir -p /home/oracle/.ssh; \
     cp -u /root/.ssh/authorized_keys /home/oracle/.ssh; \
     chown -R oracle:dba /home/oracle/.ssh; \
-echo "Cleaning..."; \
-    rm -fr /opt/install; \
-    rm -rf /var/cache/*
+echo "Configure Environment"; \
+    echo "export LC_ALL=en_US.UTF-8" >> /root/.bashrc; \
+    echo "export LC_ALL=en_US.UTF-8" >> /home/oracle/.bashrc; \
+    echo "export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251" >> /home/oracle/.bashrc; \
+    echo "export ORACLE_HOME=/u01/app/oracle/home" >> /home/oracle/.bashrc; \
+    echo "export PATH=/u01/app/oracle/home/bin:$PATH" >> /home/oracle/.bashrc; \
+echo "Cleanup"; \
+    rm -fr /u01/app/oracle/software; \
+    rm -fr /tmp/*; \
+    yum clean all
 
-# Expose sshd port
+VOLUME ["/u02/oradata", "/u02/dump"]
+
 EXPOSE 22 1521
 
-# Startup
 CMD service sshd start; \
-    export ORACLE_HOME=/opt/oracle/home; \
-    export PATH=/opt/oracle/home/bin:$PATH; \
+    export ORACLE_HOME=/u01/app/oracle/home; \
+    export PATH=/u01/app/oracle/home/bin:$PATH; \
     su oracle -c "lsnrctl start LISTENER"; \
     bash
