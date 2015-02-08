@@ -26,7 +26,7 @@
 ##        Creates database silently. No user interface is displayed.        ##
 ##                                                                          ##
 ##     3. dbca -silent -createDatabase -cloneTemplate                       ##
-##			 -responseFile <response file>                                  ##
+##			 -responseFile <response file>                                      ##
 ##        Creates database silently with clone template. The template in    ##
 ##	  responsefile is a clone template.                                     ##
 ##                                                                          ##
@@ -501,7 +501,7 @@ CHARACTERSET = "CL8MSWIN1251"
 # Default value : None
 # Mandatory     : NO
 #-----------------------------------------------------------------------------
-#INITPARAMS =
+INITPARAMS = "JAVA_POOL_SIZE=128M,JAVA_JIT_ENABLED=false"
 
 #-----------------------------------------------------------------------------
 # Name          : SAMPLESCHEMA
