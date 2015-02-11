@@ -32,6 +32,18 @@ ssh root@localhost -p `sudo docker port orac 22 | cut -d":" -f2`
 ```
 dbca-create <SID>
 ```
+### Print Oracle port
+```
+export ORACLE_PORT=`sudo docker port orac 1521 | cut -d":" -f2`
+echo $ORACLE_PORT
+```
+
+### Print Oracle port
+```
+export ORACLE_PORT=`sudo docker port orac 1521 | cut -d":" -f2`
+echo $ORACLE_PORT
+```
+
 
 ### Login into Database
 ```
