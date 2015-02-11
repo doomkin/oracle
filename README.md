@@ -38,12 +38,17 @@ export ORACLE_PORT=`sudo docker port orac 1521 | cut -d":" -f2`
 echo $ORACLE_PORT
 ```
 
-### Print Oracle port
+### Configure tnsnames.ora
 ```
-export ORACLE_PORT=`sudo docker port orac 1521 | cut -d":" -f2`
-echo $ORACLE_PORT
+$ORACLE_SID =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = $HOSTNAME)(PORT = $ORACLE_PORT))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = $ORACLE_SID)
+    )
+  )
 ```
-
 
 ### Login into Database
 ```
