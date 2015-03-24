@@ -29,11 +29,11 @@ echo "Install package and OS requirements"; \
     yum install -y oracle-rdbms-server-11gR2-preinstall wget mc; \
 echo "Build 7za"; \
     cd /tmp; \
-    wget http://sourceforge.net/projects/p7zip/files/p7zip/9.20.1/p7zip_9.20.1_src_all.tar.bz2; \
-    tar jxf p7zip_9.20.1_src_all.tar.bz2; \
-    cd /tmp/p7zip_9.20.1; \
+    wget http://downloads.sourceforge.net/project/p7zip/p7zip/9.38.1/p7zip_9.38.1_src_all.tar.bz2; \
+    tar jxf p7zip_9.38.1_src_all.tar.bz2; \
+    cd /tmp/p7zip_9.38.1; \
     make; \
-    /tmp/p7zip_9.20.1/install.sh; \
+    /tmp/p7zip_9.38.1/install.sh; \
 echo "Unzip software"; \
     cd /u01/app/oracle/software; \
     7za x *1of*.zip; \
