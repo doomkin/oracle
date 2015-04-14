@@ -75,4 +75,11 @@ VOLUME /u02/oradata /u02/dump
 EXPOSE 22 1521
 
 CMD service sshd start; \
-    bash
+    chown -R oracle:dba /u02; \
+    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/listener.ora; \
+    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/tnsnames.ora; \
+    export PATH=/u01/app/oracle/home/bin:$PATH; \
+    export ORACLE_HOME=/u01/app/oracle/home; \
+    su oracle -c "lsnrctl start LISTENER"; \
+    su oracle -c "dbstart ${ORACLE_HOME}"; \
+    su - oracle
