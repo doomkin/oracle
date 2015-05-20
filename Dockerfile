@@ -48,6 +48,8 @@ echo "Run Installer in silent mode"; \
     /u01/app/oracle/home/root.sh; \
 echo "Run NetCA in silent mode"; \
     su oracle -c "umask 022; /u01/app/oracle/home/bin/netca /silent /responsefile /u01/app/oracle/response/netca.rsp"; \
+    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/listener.ora; \
+    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/tnsnames.ora; \
 echo "Configure openssh-server"; \
     sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config; \
     sed -i 's/#PermitRootLogin without-password/PermitRootLogin without-password/' /etc/ssh/sshd_config; \
@@ -60,26 +62,19 @@ echo "Cleanup"; \
     rm -fr /u01/app/oracle/software; \
     rm -fr /tmp/*; \
     yum reinstall -y glibc-common; \
-    yum clean all
-
-RUN \
-    echo "Configure Environment"; \
-    echo "export LC_ALL=en_US.UTF-8" >> /etc/profile.d/oracle.sh; \
-    echo "export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251" >> /etc/profile.d/oracle.sh; \
-    echo "export PATH=/u01/app/oracle/home/bin:$PATH" >> /etc/profile.d/oracle.sh; \
-    echo "export ORACLE_HOME=/u01/app/oracle/home" >> /etc/profile.d/oracle.sh; \
-    chmod 755 /etc/profile.d/oracle.sh
+    yum clean all; \
+echo "Configure Startup"; \
+    echo 'service sshd start' >> /etc/rc.local; \
+    echo 'export LC_ALL=en_US.UTF-8' >> /etc/rc.local; \
+    echo 'export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251' >> /etc/rc.local; \
+    echo 'export PATH=/u01/app/oracle/home/bin:$PATH' >> /etc/rc.local; \
+    echo 'export ORACLE_HOME=/u01/app/oracle/home' >> /etc/rc.local; \
+    echo 'umask 022' >> /etc/rc.local; \
+    echo 'su oracle -c "lsnrctl start LISTENER"' >> /etc/rc.local; \
+    echo 'su oracle -c "dbstart ${ORACLE_HOME}"' >> /etc/rc.local
 
 VOLUME /u02/oradata /u02/dump
 
 EXPOSE 22 1521
 
-CMD service sshd start; \
-    chown -R oracle:dba /u02; \
-    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/listener.ora; \
-    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/tnsnames.ora; \
-    export PATH=/u01/app/oracle/home/bin:$PATH; \
-    export ORACLE_HOME=/u01/app/oracle/home; \
-    su oracle -c "lsnrctl start LISTENER"; \
-    su oracle -c "dbstart ${ORACLE_HOME}"; \
-    su - oracle
+CMD /etc/rc.local; bash
