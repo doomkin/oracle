@@ -15,15 +15,18 @@ sudo docker pull doomkin/oracle
 
 ### Run with external Database storage
 ```
+sudo mkdir /oradata
+sudo chmod -R 770 /oradata
+sudo chgrp -R 501 /oradata                   # where 501 is number of dba group in the container
+sudo chcon -Rt svirt_sandbox_file_t /oradata # instruction for the SELinux
 sudo docker run --name orac -it -P \
-    -v /media/d2/oradata:/u02/oradata \
-    -v /media/d2/dump:/u02/dump \
+    -v /oradata:/u02/oradata \
     doomkin/oracle
 ```
 
 ### Login into Container by SSH
 ```
-ssh-agent -s
+eval `ssh-agent -s`
 ssh-add ssh/id_rsa
 ssh root@localhost -p `sudo docker port orac 22 | cut -d":" -f2`
 ```
@@ -58,6 +61,28 @@ sqlplus "sys/oracle123@<SID> as sysdba"
 ### Delete Database
 ```
 dbca-delete <SID>
+```
+### Instructions for building image manually
+1. Download end extract this repo
+```
+wget https://github.com/doomkin/oracle/archive/master.zip
+unzip master.zip
+cd oracle-master
+```
+
+2. Download the Oracle Database from 
+[**linux.x64_11gR2_database_1of2.zip**](http://download.oracle.com/otn/linux/oracle11g/R2/linux.x64_11gR2_database_1of2.zip)
+[**linux.x64_11gR2_database_2of2.zip**](http://download.oracle.com/otn/linux/oracle11g/R2/linux.x64_11gR2_database_2of2.zip)
+and replace them to software directory.
+
+3. Change the encoding in the Dockerfile
+```
+    echo 'export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251' >> /etc/rc.local; \
+```
+
+4. Build image
+```
+sudo docker build -t="doomkin/oracle" . 
 ```
 
 ### Build the image with only last layer to compress
