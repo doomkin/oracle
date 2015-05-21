@@ -39,12 +39,12 @@ ORACLE_HOSTNAME=
 #-------------------------------------------------------------------------------
 # Specify the Unix group to be set for the inventory directory.  
 #-------------------------------------------------------------------------------
-UNIX_GROUP_NAME=oinstall
+UNIX_GROUP_NAME=dba
 
 #-------------------------------------------------------------------------------
 # Specify the location which holds the inventory files.
 #-------------------------------------------------------------------------------
-INVENTORY_LOCATION=/opt/oraInventory
+INVENTORY_LOCATION=/u01/app/oraInventory
 
 #-------------------------------------------------------------------------------
 # Specify the languages in which the components will be installed.             
@@ -80,12 +80,12 @@ SELECTED_LANGUAGES=en
 #------------------------------------------------------------------------------
 # Specify the complete path of the Oracle Home.
 #------------------------------------------------------------------------------
-ORACLE_HOME=/opt/oracle/home
+ORACLE_HOME=/u01/app/oracle/home
 
 #------------------------------------------------------------------------------
 # Specify the complete path of the Oracle Base. 
 #------------------------------------------------------------------------------
-ORACLE_BASE=/opt/oracle
+ORACLE_BASE=/u01/app/oracle
 
 #------------------------------------------------------------------------------
 # Specify the installation edition of the component.                        
@@ -329,14 +329,14 @@ oracle.install.db.config.starterdb.storageType=FILE_SYSTEM_STORAGE
 #
 # Applicable only when oracle.install.db.config.starterdb.storage=FILE_SYSTEM 
 #-------------------------------------------------------------------------------
-oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=/opt/oracle/home/oradata
+oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=/u01/app/oracle/home/oradata
 
 #-------------------------------------------------------------------------------
 # Specify the backup and recovery location.
 #
 # Applicable only when oracle.install.db.config.starterdb.storage=FILE_SYSTEM 
 #-------------------------------------------------------------------------------
-oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/opt/oracle/home/recovery
+oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/u01/app/oracle/home/recovery
 
 #-------------------------------------------------------------------------------
 # Specify the existing ASM disk groups to be used for storage.
