@@ -63,24 +63,29 @@ sqlplus "sys/oracle123@<SID> as sysdba"
 dbca-delete <SID>
 ```
 ### Instructions for building image manually
-1. Download end extract this repo
+Download end extract this repo
 ```
 wget https://github.com/doomkin/oracle/archive/master.zip
 unzip master.zip
 cd oracle-master
 ```
 
-2. Download the Oracle Database from 
+Download the Oracle Database from 
 [**linux.x64_11gR2_database_1of2.zip**](http://download.oracle.com/otn/linux/oracle11g/R2/linux.x64_11gR2_database_1of2.zip)
 [**linux.x64_11gR2_database_2of2.zip**](http://download.oracle.com/otn/linux/oracle11g/R2/linux.x64_11gR2_database_2of2.zip)
 and replace them to software directory.
 
-3. Change the encoding in the Dockerfile
+Change the encoding in the Dockerfile
 ```
-    echo 'export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251' >> /etc/rc.local; \
+echo 'export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251' >> /etc/rc.local; \
 ```
 
-4. Build image
+Change the encoding in the response/db_install.rsp
+```
+oracle.install.db.config.starterdb.characterSet=CL8MSWIN1251
+```
+
+Build image
 ```
 sudo docker build -t="doomkin/oracle" . 
 ```
