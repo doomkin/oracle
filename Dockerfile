@@ -8,52 +8,58 @@
 FROM oraclelinux:6.6
 MAINTAINER Pavel Nikitin <p.doomkin@ya.ru>
 
-ADD ssh/id_rsa.pub /root/.ssh/authorized_keys
-
-COPY software /u01/app/oracle/software
-COPY response /u01/app/oracle/response
-
-RUN \
-echo "Oracle Database 11gR2 installation on Oracle Linux 6.6"; \
-    groupadd oinstall; \
-    groupadd dba; \
-    useradd -g oinstall -G dba oracle; \
-echo "Create a directory structure"; \
+# Oracle Database 11gR2 installation on Oracle Linux 6.6
+RUN groupadd dba; \
+    useradd -g dba oracle; \
     mkdir -p /u01/app/oracle/software; \
-    chown -R oracle:oinstall /u01; \
+    chown -R oracle:dba /u01; \
     mkdir -p /u02/oradata; \
     mkdir -p /u02/dump; \
-    chown -R oracle:oinstall /u02; \
+    chown -R oracle:dba /u02; \
     touch /etc/fstab; \
-echo "Install package and OS requirements"; \
-    yum install -y oracle-rdbms-server-11gR2-preinstall wget mc; \
-echo "Build 7za"; \
-    cd /tmp; \
+    yum install -y oracle-rdbms-server-11gR2-preinstall wget mc sudo
+
+# Build 7za
+RUN cd /tmp; \
     wget http://downloads.sourceforge.net/project/p7zip/p7zip/9.38.1/p7zip_9.38.1_src_all.tar.bz2; \
     tar jxf p7zip_9.38.1_src_all.tar.bz2; \
     cd /tmp/p7zip_9.38.1; \
     make; \
-    /tmp/p7zip_9.38.1/install.sh; \
-echo "Unzip software"; \
-    cd /u01/app/oracle/software; \
+    /tmp/p7zip_9.38.1/install.sh
+
+# Oracle installation files
+COPY software /u01/app/oracle/software
+COPY response /u01/app/oracle/response
+
+# Unzip Oracle installation files
+RUN cd /u01/app/oracle/software; \
     7za x *1of*.zip; \
-    7za x *2of*.zip; \
-echo "Run Installer in silent mode"; \
-    su oracle -c "umask 022; \
-        unset ORACLE_SID; unset ORACLE_HOME; unset TNS_ADMIN; \
-        /u01/app/oracle/software/database/runInstaller -waitforcompletion -silent -noconfig -ignoreSysPrereqs -ignorePrereq \
-            -responseFile /u01/app/oracle/response/db_install.rsp \
-            "FROM_LOCATION=/u01/app/oracle/software/database/stage/products.xml""; \
-    /u01/app/oraInventory/orainstRoot.sh; \
-    /u01/app/oracle/home/root.sh; \
-echo "Run NetCA in silent mode"; \
-    su oracle -c "umask 022; /u01/app/oracle/home/bin/netca /silent /responsefile /u01/app/oracle/response/netca.rsp"; \
-    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/listener.ora; \
-    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/tnsnames.ora; \
-echo "Configure openssh-server"; \
-    sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config; \
-    sed -i 's/#PermitRootLogin without-password/PermitRootLogin without-password/' /etc/ssh/sshd_config; \
-    sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd; \
+    7za x *2of*.zip
+
+# Run Installer in silent mode
+USER oracle
+RUN umask 022; \
+    /u01/app/oracle/software/database/runInstaller -waitforcompletion -silent -noconfig -ignoreSysPrereqs -ignorePrereq \
+      -responseFile /u01/app/oracle/response/db_install.rsp \
+      "FROM_LOCATION=/u01/app/oracle/software/database/stage/products.xml" \
+      "ORACLE_HOSTNAME=$HOSTNAME"
+
+# After install
+USER root
+RUN /u01/app/oraInventory/orainstRoot.sh; \
+    /u01/app/oracle/home/root.sh
+
+# Run NetCA in silent mode
+USER oracle
+RUN umask 022; \
+    /u01/app/oracle/home/bin/netca /silent /responsefile /u01/app/oracle/response/netca.rsp
+
+# Configure openssh-server, Cleanup, Startup
+USER root
+ADD ssh/id_rsa.pub /root/.ssh/authorized_keys
+RUN sed 's|PasswordAuthentication yes|PasswordAuthentication no|' /etc/ssh/sshd_config; \
+    sed 's|#PermitRootLogin without-password|PermitRootLogin without-password|' /etc/ssh/sshd_config; \
+    sed 's|session\s*required\s*pam_loginuid.so|session optional pam_loginuid.so|g' -i /etc/pam.d/sshd; \
     chmod 700 /root/.ssh && chmod 600 /root/.ssh/authorized_keys; \
     mkdir -p /home/oracle/.ssh; \
     cp -u /root/.ssh/authorized_keys /home/oracle/.ssh; \
@@ -69,9 +75,8 @@ echo "Configure Startup"; \
     echo 'export NLS_LANG=AMERICAN_AMERICA.CL8MSWIN1251' >> /etc/rc.local; \
     echo 'export PATH=/u01/app/oracle/home/bin:$PATH' >> /etc/rc.local; \
     echo 'export ORACLE_HOME=/u01/app/oracle/home' >> /etc/rc.local; \
-    echo 'umask 022' >> /etc/rc.local; \
-    echo 'su oracle -c "lsnrctl start LISTENER"' >> /etc/rc.local; \
-    echo 'su oracle -c "dbstart ${ORACLE_HOME}"' >> /etc/rc.local
+    echo 'sudo -u oracle /bin/sh -c "lsnrctl start LISTENER"' >> /etc/rc.local; \
+    echo 'sudo -u oracle /bin/sh -c "dbstart ${ORACLE_HOME}"' >> /etc/rc.local
 
 VOLUME /u02/oradata /u02/dump
 
