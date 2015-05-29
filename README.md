@@ -116,25 +116,8 @@ sudo docker images
 ### To restore metadata rebuild image with following Dockerfile
 ```
 FROM doomkin/oracle:raw
-	
-COPY script /u01/app/oracle/home/bin
-RUN chown oracle:dba /u01/app/oracle/home/bin/dbca-create; \
-    chown oracle:dba /u01/app/oracle/home/bin/dbca-delete; \
-    chmod 775 /u01/app/oracle/home/bin/dbca-create; \
-    chmod 775 /u01/app/oracle/home/bin/dbca-delete
-
 VOLUME /u02/oradata /u02/dump
-
 EXPOSE 22 1521
-
-CMD service sshd start; \
-    chown -R oracle:dba /u02; \
-    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/listener.ora; \
-    sed -i -E "s/HOST = [^)]+/HOST = $HOSTNAME/g" /u01/app/oracle/home/network/admin/tnsnames.ora; \
-    export PATH=/u01/app/oracle/home/bin:$PATH; \
-    export ORACLE_HOME=/u01/app/oracle/home; \
-    su oracle -c "lsnrctl start LISTENER"; \
-    su oracle -c "dbstart ${ORACLE_HOME}"; \
-    su - oracle
+CMD /etc/rc.local; bash
 ```
 As a result, the size of the Docker image will be 5 GB
