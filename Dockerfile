@@ -6,7 +6,7 @@
 #
 
 FROM oraclelinux:6.6
-MAINTAINER Pavel Doomkin
+MAINTAINER Pavel Nikitin
 
 # Oracle Database 11gR2 installation on Oracle Linux 6.6
 RUN groupadd dba; \
